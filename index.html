@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instalar | TJ Maps</title>
+    <title>Instalar | TJMaps</title>
     <style>
         /* ── Theme Tokens ────────────────────────────────────── */
         :root {
@@ -149,7 +149,7 @@
         <div id="download-area" class="hidden">
             <div class="tj-surface">
                 <div class="os-badge" id="os-label">Detectando...</div>
-                <h1>TJ Maps</h1>
+                <h1>TJMaps</h1>
                 <p class="subtitle">v<span id="version-number">0.0.0</span> — Desktop</p>
 
                 <a href="#" id="main-download-btn" class="tj-btn-primary">Baixar para&nbsp;<span id="btn-os">Sistema</span></a>
@@ -219,7 +219,7 @@
                     // Link dinâmico baseado na arquitetura
                     ui.btn.href = `https://github.com/${REPO}/releases/download/v${version}/TJMaps-macOS-${version}-${info.arch}.dmg`;
                     
-                    const cmd = `xattr -rd com.apple.quarantine '/Applications/TJ Maps.app' && open '/Applications/TJ Maps.app'`;
+                    const cmd = `xattr -rd com.apple.quarantine '/Applications/TJMaps.app' && open '/Applications/TJMaps.app'`;
                     
                     ui.content.innerHTML = `
                         1. Abra o <b>.dmg</b> e arraste o app para <b>Aplicativos</b>.<br>
