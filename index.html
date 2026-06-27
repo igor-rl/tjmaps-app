@@ -217,7 +217,7 @@
                     ui.btnText.innerText = `macOS (${isApple ? "Apple Silicon" : "Intel"})`;
                     
                     // Link dinâmico baseado na arquitetura
-                    ui.btn.href = `https://github.com/${REPO}/releases/download/v${version}/TJ-Maps-macOS-${version}-${info.arch}.dmg`;
+                    ui.btn.href = `https://github.com/${REPO}/releases/download/v${version}/TJMaps-macOS-${version}-${info.arch}.dmg`;
                     
                     const cmd = `xattr -rd com.apple.quarantine '/Applications/TJ Maps.app' && open '/Applications/TJ Maps.app'`;
                     
