@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instalar | TJ Maps</title>
+    <style>
+        /* ── Theme Tokens ────────────────────────────────────── */
+        :root {
+            --bg-base: #0c0c0e;
+            --bg-surface: #111114;
+            --bg-elevated: #18181c;
+            --bg-hover: #1f1f24;
+            --border: #232328;
+            --border-strong: #2e2e36;
+            --text-primary: #e8e8ec;
+            --text-secondary: #8a8a96;
+            --text-tertiary: #52525c;
+            --accent: #5b6af0;
+            --accent-hover: #6b79f5;
+            --accent-muted: rgba(91, 106, 240, 0.12);
+            --accent-border: rgba(91, 106, 240, 0.22);
+            --code-bg: #050505;
+        }
+
+        /* ── Base Reset ────────────────────────────────────────────────── */
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .tj-surface {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        h1 { font-size: 20px; font-weight: 600; margin: 0 0 8px 0; }
+        .subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 32px; }
+
+        .os-badge {
+            display: inline-flex;
+            padding: 4px 10px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-strong);
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .tj-btn-primary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background: var(--accent-muted);
+            border: 1px solid var(--accent-border);
+            color: var(--accent);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+
+        .tj-btn-primary:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+
+        .instructions-box {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .tj-label {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        #btn-os {
+            margin-left: 0.25em;
+        }
+
+        .instruction-text { font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+
+        /* Estilo Terminal/Code */
+        code {
+            display: block;
+            background: var(--code-bg);
+            border: 1px solid var(--border-strong);
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'SF Mono', 'Menlo', monospace;
+            font-size: 11px;
+            color: var(--text-primary);
+            margin: 10px 0;
+            word-break: break-all;
+            cursor: pointer;
+            position: relative;
+        }
+
+        code:hover::after {
+            content: "Clique para copiar";
+            position: absolute;
+            top: -20px; right: 0;
+            font-size: 9px;
+            color: var(--accent);
+        }
+
+        .footer-links { margin-top: 24px; display: flex; justify-content: center; gap: 16px; }
+        .footer-links a { font-size: 12px; color: var(--text-tertiary); text-decoration: none; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="loading">Sincronizando...</div>
+
+        <div id="download-area" class="hidden">
+            <div class="tj-surface">
+                <div class="os-badge" id="os-label">Detectando...</div>
+                <h1>TJ Maps</h1>
+                <p class="subtitle">v<span id="version-number">0.0.0</span> — Desktop</p>
+
+                <a href="#" id="main-download-btn" class="tj-btn-primary">Baixar para&nbsp;<span id="btn-os">Sistema</span></a>
+
+                <div class="instructions-box">
+                    <span class="tj-label" id="instruction-title">Instalação</span>
+                    <div id="instruction-content" class="instruction-text"></div>
+                </div>
+            </div>
+
+            <div class="footer-links">
+                <a href="https://github.com/igor-rl/tjmaps-app/releases">Encontre mais versões do app</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const REPO = "igor-rl/tjmaps-app";
+
+        function getDetailedOS() {
+            const ua = navigator.userAgent.toLowerCase();
+            if (ua.includes("win")) return { os: "windows", arch: "x64" };
+            if (ua.includes("mac")) {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl');
+                let isAppleSilicon = false;
+                if (gl) {
+                    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || "";
+                    if (renderer.includes("Apple")) isAppleSilicon = true;
+                }
+                return { os: "macos", arch: isAppleSilicon ? "arm64" : "x64" };
+            }
+            return { os: "unknown", arch: "x64" };
+        }
+
+        async function init() {
+            try {
+                const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`);
+                const release = await res.json();
+                const version = release.tag_name.replace('v', '');
+                const info = getDetailedOS();
+                
+                const ui = {
+                    version: document.getElementById('version-number'),
+                    label: document.getElementById('os-label'),
+                    btn: document.getElementById('main-download-btn'),
+                    btnText: document.getElementById('btn-os'),
+                    content: document.getElementById('instruction-content')
+                };
+
+                ui.version.innerText = version;
+
+                if (info.os === "windows") {
+                    ui.label.innerText = "Windows (x64)";
+                    ui.btnText.innerText = "Windows";
+                    ui.btn.href = `https://github.com/${REPO}/releases/download/v${version}/TJ-Maps-windows-installer-${version}.exe`;
+                    ui.content.innerHTML = "Execute o instalador e siga os passos na tela.";
+                } 
+                else if (info.os === "macos") {
+                    const isApple = info.arch === "arm64";
+                    ui.label.innerText = `macOS ${isApple ? "Apple Silicon" : "Intel"}`;
+                    
+                    // Ajuste do texto do botão com espaço
+                    ui.btnText.innerText = `macOS (${isApple ? "Apple Silicon" : "Intel"})`;
+                    
+                    // Link dinâmico baseado na arquitetura
+                    ui.btn.href = `https://github.com/${REPO}/releases/download/v${version}/TJ-Maps-macOS-${version}-${info.arch}.dmg`;
+                    
+                    const cmd = `xattr -rd com.apple.quarantine '/Applications/TJ Maps.app' && open '/Applications/TJ Maps.app'`;
+                    
+                    ui.content.innerHTML = `
+                        1. Abra o <b>.dmg</b> e arraste o app para <b>Aplicativos</b>.<br>
+                        2. Como o app não é assinado, o macOS irá bloqueá-lo. Para liberar, copie e rode o comando abaixo no <b>Terminal</b>:
+                        <code onclick="navigator.clipboard.writeText(this.innerText); alert('Copiado!')">${cmd}</code>
+                        Ou vá em <b>Ajustes do Sistema → Privacidade e Segurança</b> e clique em <b>"Abrir mesmo assim"</b>.
+                    `;
+                }
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('download-area').classList.remove('hidden');
+            } catch (e) {
+                document.getElementById('loading').innerText = "Erro ao carregar dados.";
+            }
+        }
+        init();
+    </script>
+</body>
+</html>
